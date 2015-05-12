@@ -4,7 +4,7 @@ App::uses('AppController','Controller');
 define('MORIKEN_WEB_ID',1);
 class ProblemsController extends AppController {
     public $name = 'Problems';
-    public $uses = array('Category');
+    public $uses = array('Category', 'Problem');
     public $components = array('Session');
 
     public function selectStage() {
@@ -38,6 +38,20 @@ class ProblemsController extends AppController {
 
     public function answer($employ, $publicFlag, $categoryId, $grade, $item) {
         //回答画面
+        $querys = 'kentei_id='.MORIKEN_WEB_ID.'&'.'employ='.$employ.'&'.'public_flag='.$publicFlag.'&'.'category_id='.$categoryId.'&'.'grade='.$grade.'&'.'item='.$item;
+        $response = $this->api_rest('GET', 'problems/index.json', $querys, array());
+        $extractNames = array(
+            'sentence','right_answer','wrong_answer1','wrong_answer2','wrong_answer3','description','other_answer'
+        );
+        $propertyList = $this->Problem->createPropertyList($response['response']['Problems'], $extractNames);
+        $this->set('problems', $propertyList);
+        $stageLevel = $this->Session->read('stageLevel');
+        if($stageLevel == 'first'){
+            $this->render('answer_solo');
+        }else{
+            $this->render('answer_list');
+        }
+        $this->render('answer_solo');
     }
 
     public function result() {
