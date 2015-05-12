@@ -17,17 +17,20 @@ class ProblemsController extends AppController {
         $this->Session->write('stageLevel', 'first');
         $querys = 'kentei_id='.MORIKEN_WEB_ID;
         $response = $this->api_rest('GET', 'categories/index.json', $querys, array());
-        $categoryNames = $this->Category->createProperties($response, "name");
-        $categoryIds = $this->Category->createProperties($response, "id");
+        $categoryNames = $this->Category->createProperties($response, 'name');
+        $categoryIds = $this->Category->createProperties($response, 'id');
         $this->set('categoryProperties', array_combine($categoryIds, $categoryNames));
     }
 
     public function selectTheOriginal() {
         //過去問回答カテゴリ選択画面
+        //※ 選択したステージレベル情報はセッションで保持すること
+        $this->Session->write('stageLevel', 'first');
         $querys = 'kentei_id='.MORIKEN_WEB_ID;
         $response = $this->api_rest('GET', 'categories/index.json', $querys, array());
-        $categoryNames = $this->Category->createProperties($response, "name");
-        $categoryIds = $this->Category->createProperties($response, "id");
+        //cakeのarrary_coulmメソッドに後で変更
+        $categoryNames = $this->Category->createProperties($response, 'name');
+        $categoryIds = $this->Category->createProperties($response, 'id');
         $this->set('categoryProperties', array_combine($categoryIds, $categoryNames));
     }
 
