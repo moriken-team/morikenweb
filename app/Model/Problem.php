@@ -3,18 +3,17 @@ App::uses('AppModel','Model');
 class Problem extends AppModel {
     public $name = 'Problem';
 
-    public function createPropertyList($problems, $propertyNames) {
-        $propertyList = array();
-        //リファクタリング必要？
+    public function extractColumns($problems, $columnNames) {
+        $columns = array();
         foreach($problems as $key => $problem){
-            foreach($propertyNames as $name){
-                $propertyList[$key][$name] = $problem['Problem'][$name];
+            foreach($columnNames as $name){
+                $columns[$key][$name] = $problem['Problem'][$name];
             }
         }
-        return $propertyList;
+        return $columns;
     }
 
-    public function validateResultOfReply($postAnswer, $correct) {
+    public function validateCorrect($postAnswer, $correct) {
         if($postAnswer === $correct){
             return true;
         }
@@ -22,12 +21,12 @@ class Problem extends AppModel {
     }
 
     public function countCorrect($postAnswers, $correctAnswers) {
-        $numberOfCorrect = 0;
+        $correct = 0;
         foreach($correctAnswers as $key => $correctAnswer){
-            if($this->validateResultOfReply($postAnswers[$key], $correctAnswer['Problem']['right_answer'])){
-                $numberOfCorrect++;
+            if($this->validateCorrect($postAnswers[$key], $correctAnswer['Problem']['right_answer'])){
+                $correct++;
             }
         }
-        return $numberOfCorrect;
+        return $correct;
     }
 }
