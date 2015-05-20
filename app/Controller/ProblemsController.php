@@ -11,15 +11,15 @@ class ProblemsController extends AppController {
         //回答ステージ選択画面
     }
 
-    public function selectAnswerType($type) {
+    public function selectAnswerType($type = 'past') {
         //過去問回答カテゴリ&級選択画面
         //※ 選択したステージレベル情報はセッションで保持すること
         $this->Session->write('stageLevel', 'first');
         $querys = 'kentei_id='.MORIKEN_WEB_ID;
         $response = $this->api_rest('GET', 'categories/index.json', $querys, array());
-        $categoryNames = $this->Category->createProperties($response, 'name');
-        $categoryIds = $this->Category->createProperties($response, 'id');
-        $this->set('categoryProperties', array_combine($categoryIds, $categoryNames));
+        $columnNames = array('id', 'name');
+        $columns = $this->Category->extractColumns($response['response']['Categories'], $columnNames);
+        $this->set('categories', array_combine($columns['id'], $columns['name']));
         if($type == 'original'){
             $this->render('select_the_original');
         }
