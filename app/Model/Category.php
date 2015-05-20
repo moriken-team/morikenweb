@@ -3,10 +3,13 @@ App::uses('AppModel','Model');
 class Category extends AppModel {
     public $name = 'Category';
 
-    public function createProperties($response, $propertyName) {
-        foreach($response["response"]["Categories"] as $category){
-            $properties[] = $category["Category"][$propertyName];
+    public function extractColumns($categories, $columnNames) {
+        $columns = array();
+        foreach($categories as $key => $category){
+            foreach($columnNames as $name){
+                $columns[$name][] = $category["Category"][$name];
+            }
         }
-        return $properties;
+        return $columns;
     }
 }
