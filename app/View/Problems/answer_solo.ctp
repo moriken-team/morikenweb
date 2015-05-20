@@ -4,10 +4,10 @@ echo $this->Form->create('Problem', array('type' => 'post', 'action' => 'result'
 $problemList = array();
 foreach($problems as $key => $problem){
     $radioOptions = array(
-        1 => $problem['right_answer'],
-        2 => $problem['wrong_answer1'],
-        3 => $problem['wrong_answer2'],
-        4 => $problem['wrong_answer3']
+        $choices[$key][0] => $choices[$key][0],
+        $choices[$key][1] => $choices[$key][1],
+        $choices[$key][2] => $choices[$key][2],
+        $choices[$key][3] => $choices[$key][3]
     );
     $radioAttributes = array('legend' => false);
     echo $this->Html->para(null, $problem['sentence']);
