@@ -44,11 +44,22 @@ class ProblemsController extends AppController {
         $querys = 'kentei_id='.MORIKEN_WEB_ID.'&'.'employ='.$employ.'&'.'public_flag='.$publicFlag.'&'.'category_id='.$categoryId.'&'.'grade='.$grade.'&'.'item='.$item;
         $response = $this->api_rest('GET', 'problems/index.json', $querys, array());
         $this->Session->write('problems', $response['response']['Problems']);
-        $extractNames = array(
-            'sentence','right_answer','wrong_answer1','wrong_answer2','wrong_answer3','description','other_answer'
+        $extractPropertyNames = array(
+            'sentence','right_answer','description','other_answer'
         );
-        $propertyList = $this->Problem->createPropertyList($response['response']['Problems'], $extractNames);
+        $propertyList = $this->Problem->createPropertyList($response['response']['Problems'], $extractPropertyNames);
+        $extractChoicesNames = array(
+            'right_answer','wrong_answer1','wrong_answer2','wrong_answer3'
+        );
+        $choices = $this->Problem->createPropertyList($response['response']['Problems'], $extractChoicesNames);
+        for($i = 0; $i < $item; $i++){
+            shuffle($choices[$i]);
+            array_values($choices[$i]);
+        }
         $this->set('problems', $propertyList);
+        $this->set('choices', $choices);
+        $this->Session->write('problemProperties', $propertyList);
+        $this->Session->write('choices', $choices);
         $stageLevel = $this->Session->read('stageLevel');
         if($stageLevel == 'first'){
             $this->render('answer_solo');
