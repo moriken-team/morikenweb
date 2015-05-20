@@ -21,9 +21,9 @@ class ProblemsController extends AppController {
         $columns = $this->Category->extractColumns($response['response']['Categories'], $columnNames);
         $this->set('categories', array_combine($columns['id'], $columns['name']));
         if($type == 'original'){
-            $this->render('select_the_original');
+            $this->render('select_original');
         }
-        $this->render('select_the_past');
+        $this->render('select_past');
     }
 
     public function selectTheEmployGrade($stageLevel) {
