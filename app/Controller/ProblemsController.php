@@ -70,9 +70,9 @@ class ProblemsController extends AppController {
 
     public function result() {
         //回答結果画面
-        $numberOfCorrect = $this->Problem->countCorrect($this->request->data['Problem'], $this->Session->read('problems'));
+        $correct = $this->Problem->countCorrect($this->request->data['Problem'], $this->Session->read('problems'));
         $this->set('postAnswers', $this->request->data['Problem']);
-        $this->set('numberOfCorrect', $numberOfCorrect);
+        $this->set('correct', $correct);
         $stageLevel = $this->Session->read('stageLevel');
         if($stageLevel == 'first'){
             $this->render('result_solo');
