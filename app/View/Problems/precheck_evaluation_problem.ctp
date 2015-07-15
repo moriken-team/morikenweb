@@ -1,4 +1,14 @@
-<h3>投稿前に評価内容を確認</h3>
+<div class="function_left">
+  <!-- サブナビ部分 -->
+  <ul>
+    <li><a href="#">模擬テスト</a></li>
+    <li><a href="#">テスト1</a></li>
+    <li><a href="#">テスト2</a></li>
+    <li><a href="#">テスト3</a></li>
+  </ul>
+</div>
+<div class="function_right">
+<h2>投稿前に評価内容を確認</h2>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <?php
 echo $this->Form->create('Problems',array(
@@ -59,3 +69,4 @@ echo $this->Form->create('Problems',array(
 ?>
 
 <?php pr($arrange_eval_data) ?>
+</div>
