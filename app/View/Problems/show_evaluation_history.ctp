@@ -1,4 +1,14 @@
-<h3>UserId=7の評価履歴</h3>
+<div class="function_left">
+  <!-- サブナビ部分 -->
+  <ul>
+    <li><a href="#">模擬テスト</a></li>
+    <li><a href="#">テスト1</a></li>
+    <li><a href="#">テスト2</a></li>
+    <li><a href="#">テスト3</a></li>
+  </ul>
+</div>
+<div class="function_right">
+<h2>UserId=7の評価履歴</h2>
 
 <table>
 	<?php foreach ($arrange_eval_data as $row_num => $eval_value): ?>
@@ -73,10 +83,7 @@
 		</td>
 	</tr>
 	<?php endforeach; ?>
-
 </table>
-
-
 <?php debug($arrange_eval_data); ?>
-
 <!-- ユーザ名、評価項目名、同時呼び出しか、新規APIにて呼び出しか -->
+</div>

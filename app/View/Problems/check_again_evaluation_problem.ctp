@@ -1,4 +1,14 @@
-<h3>※修正点がある場合は評価コメントをしてください</h3>
+<div class="function_left">
+  <!-- サブナビ部分 -->
+  <ul>
+    <li><a href="#">模擬テスト</a></li>
+    <li><a href="#">テスト1</a></li>
+    <li><a href="#">テスト2</a></li>
+    <li><a href="#">テスト3</a></li>
+  </ul>
+</div>
+<div class="function_right">
+<h2>※修正点がある場合は評価コメントをしてください</h2>
 <!-- 以下評価項目の内容については後に検討 -->
 <?php
 	echo $this->Form->create('Problems',array(
@@ -34,3 +44,4 @@
 		));
 	echo $this->Form->submit('評価する');
 ?>
+</div>
