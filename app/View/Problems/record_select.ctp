@@ -32,6 +32,8 @@
 	echo "[選択肢３]-".$record_data['wrong_answer2'].$this->Html->tag('br');
 	echo "[選択肢４]-".$record_data['wrong_answer3'].$this->Html->tag('br');
 	//echo "[タグ]：".$record_data['tag'].$this->Html->tag('br');
+    echo "[画像]-";
+    echo $this->Html->image($record_data['image'],array('width'=>'150','height'=>'150')).$this->Html->tag('br');
 	echo "[解説]：".$record_data['description'].$this->Html->tag('br');
     echo $this->Html->tag('br').$this->Html->tag('br');
 ?>

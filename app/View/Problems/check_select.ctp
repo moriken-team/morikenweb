@@ -31,7 +31,10 @@
 	echo "[選択肢２]-".$default_data['wrong_answer1'].$this->Html->tag('br');
 	echo "[選択肢３]-".$default_data['wrong_answer2'].$this->Html->tag('br');
 	echo "[選択肢４]-".$default_data['wrong_answer3'].$this->Html->tag('br');
-    echo "イメージ".$default_data['image'].$this->Html->tag('br');
+    echo "[画像]-";
+    if(isset($thumbnail)){
+        echo $this->Html->image($thumbnail,array('width'=>'150','height'=>'150')).$this->Html->tag('br');
+    }
 	echo "[タグ]：".$default_data['tag'].$this->Html->tag('br');
 	echo "[解説]：".$default_data['description'].$this->Html->tag('br').$this->Html->tag('br');
 	?>

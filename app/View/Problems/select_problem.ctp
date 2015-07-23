@@ -31,7 +31,7 @@
 	<hr size="5" color="#B45F04">
 <?php
 	//formをcreate
-	echo $this->Form->create('problem_data', array('type'=>'text', 'enctype' => 'multipart/form-data', 'url'=>'/Problems/check_problem'));
+	echo $this->Form->create('problem_data', array('type'=>'post', 'enctype' => 'multipart/form-data', 'url'=>'/Problems/check_problem'));
 	echo $this->Form->hidden('type', array('value'=>"$type"));
 	echo $this->Form->hidden('kentei_id', array('value'=>"$kentei_id"));//初期値は1
 	echo $this->Form->hidden('user_id', array('value'=>'12'));//ユーザーによって変更
@@ -78,10 +78,7 @@
     }
     echo $this->Html->para(null, "誤答選択肢３".$this->Form->textarea('wrong_answer3',array('default'=>$default['wrong_answer3'])));
     echo "写真を載せる場合は以下から登録 (200kb以下、JPEG および PNG画像)";
-    echo $this->Form->input('',array(
-    'type' => 'file',
-    'name' => 'image'
-	));
+    echo $this->Form->input('image', array('label' => false, 'type' => 'file', 'multiple'));
     echo "タグ(複数タグは半角「/」で区切り 例:盛岡/岩手/川)";
     echo $this->Form->text('tag',array('default'=>$default['tag']));
     if(!empty($error_log['description'])){//エラー処理
