@@ -66,7 +66,7 @@
 	echo $this->Html->para(null, "解答*".$this->Form->textarea('right_answer',array('default'=>$default['right_answer'])));
 	echo $this->Html->para(null, "その他の解答".$this->Form->textarea('another_answer',array('default'=>$default['another_answer'])));
     echo "写真を載せる場合は以下から登録 (200kb以下、JPEG および PNG画像)";
-    echo $this->Form->input('',array('type' => 'file','name' => 'image'));
+    echo $this->Form->input('image', array('label' => false, 'type' => 'file', 'multiple'));
     echo "タグ(複数タグは半角「/」で区切り 例:盛岡/岩手/川)";
 	echo $this->Form->text('tag',array('default'=>$default['tag']));
     if(!empty($error_log['description'])){//エラー処理

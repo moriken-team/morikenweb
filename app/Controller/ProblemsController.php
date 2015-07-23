@@ -8,6 +8,8 @@ class ProblemsController extends AppController{
 	function make_top(){
 		$this->Session->delete('default_select');
 		$this->Session->delete('default_descriptive');
+		$this->Session->delete('category_options');
+		$this->Session->delete('subcategory_options');
 	}
     function make_problem($type = null){//初期は選択式作問入力
         $this->set('kentei_id','1');
@@ -23,7 +25,6 @@ class ProblemsController extends AppController{
         $this->set('subcategory_options',$this->Session->read('subcategory_options'));
         //typeを追加する。１は選択式問題。初期は選択式問題
         $this->set('type',$this->Session->read('type'));
-
         //typeを追加する。１は選択式問題。初期は選択式問題
         if($type == 1 || $type == null){
 			$this->set('default',$this->Session->read('default_select'));
@@ -39,11 +40,23 @@ class ProblemsController extends AppController{
     }
     function check_problem(){
         //問題の確認用ページ
-        $default_data = $this->request->data['problem_data'];
-        $category_data=$this->Session->read('category_options');
-        $subcategory_data=$this->Session->read('subcategory_options');
-        $category_id=$default_data['category_id'];
-        $this->set('category_id',$category_id);
+		if(!($this->request->data) AND !($this->Session->check('category_options'))){
+			$this->redirect('make_top');
+		}
+		if($this->request->data){
+	        $default_data = $this->request->data['problem_data'];
+			$this->Session->write('default_data',$default_data);
+			$path = "upload";
+			$image = $this->request->data['problem_data']['image'];
+			move_uploaded_file($image['tmp_name'],$path.DS.$image['name']);
+			$this->set('thumbnail',"/".$path."/".$image['name']);
+			$this->Session->write('category_id',$default_data['category_id']);
+			$this->set('category_id',$default_data['category_id']);
+		}
+		$category_data=$this->Session->read('category_options');
+		$subcategory_data=$this->Session->read('subcategory_options');
+		$default_data =$this->Session->read('default_data');
+		$category_id=$this->Session->read('category_id');
         //カテゴリが入力されていない場合の条件文
         if(!empty($category_data[$category_id])){//カテゴリが空でないとき
             $this->set('category',$category_data[$category_id]);
@@ -81,6 +94,7 @@ class ProblemsController extends AppController{
             $category_data = $this->Session->read('category_options');
             $subcategory_data = $this->Session->read('subcategory_options');
             $category_id = $record_data['category_id'];
+			$record_data['image']="/upload/".$record_data['image']['name'];
             $url = $this->api_rest("POST","problems/add.json","",$record_data);
             $tmp = $this->Problem->validation($url);
             if(!empty($tmp)){
@@ -88,16 +102,20 @@ class ProblemsController extends AppController{
                 $this->setAction('make_problem',$type);
             }else{
                 if($type==2){
-		            $this->set('record_data',$record_data);
+					$this->set('record_data',$record_data);
                     $this->set('category',$category_data[$category_id]);
                     $this->render('record_descriptive');
                     $this->Session->delete('default_descriptive');
+					$this->Session->delete('category_options');
+					$this->Session->delete('subcategory_options');
                     //セッションの破棄
                 }else{
 		            $this->set('record_data',$record_data);
                     $this->set('category',$category_data[$category_id]);
                     $this->render('record_select');
                     $this->Session->delete('default_select');
+					$this->Session->delete('category_options');
+					$this->Session->delete('subcategory_options');
                     //セッションの破棄
                 }
             }

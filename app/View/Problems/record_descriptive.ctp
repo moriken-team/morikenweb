@@ -8,7 +8,7 @@
         <a itemprop="url" href="http://localhost/morikenweb/Problems/make_top"><span itemprop="title">問題を作成</span></a>
     </li>
     <li itemscope="itemscope" itemtype="http://localhost/morikenweb/Problems/make_problem/2">
-			<span itemprop="title">一問一答式問題</span>
+		<span itemprop="title">一問一答式問題</span>
     </li>
   </ol>
 </nav>
@@ -29,6 +29,8 @@
 	echo "[問題文]：".$record_data['sentence'].$this->Html->tag('br');
 	echo "[解答]-".$record_data['right_answer'].$this->Html->tag('br');
 	echo "[その他の解答]-".$record_data['another_answer'].$this->Html->tag('br');
+    echo "[画像]-";
+    echo $this->Html->image($record_data['image'],array('width'=>'150','height'=>'150')).$this->Html->tag('br');
 	echo "[タグ]-".$record_data['tag'].$this->Html->tag('br');
 	echo "[解説]：".$record_data['description'].$this->Html->tag('br').$this->Html->tag('br');
 	echo $this->Html->tag('br').$this->Html->tag('br');

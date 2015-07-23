@@ -29,6 +29,10 @@
 	echo "[問題文]：".$default_data['sentence'].$this->Html->tag('br');
 	echo "[解答]-".$default_data['right_answer'].$this->Html->tag('br');
 	echo "[その他の解答]-".$default_data['another_answer'].$this->Html->tag('br');
+    echo "[画像]-";
+    if(isset($thumbnail)){
+        echo $this->Html->image($thumbnail,array('width'=>'150','height'=>'150')).$this->Html->tag('br');
+    }
 	echo "[タグ]：".$default_data['tag'].$this->Html->tag('br');
 	echo "[解説]：".$default_data['description'].$this->Html->tag('br').$this->Html->tag('br');
 ?>
