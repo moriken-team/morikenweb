@@ -2,7 +2,7 @@
 class ProblemsController extends AppController{
 	public $name = 'Problems';
 	public $uses = array('Evaluate','Problem');
-    public $components = array('Session');
+	public $components = array('Session');
 	public function index(){
 	}
 	function make_top(){
@@ -40,23 +40,28 @@ class ProblemsController extends AppController{
     }
     function check_problem(){
         //問題の確認用ページ
-		if(!($this->request->data) AND !($this->Session->check('category_options'))){
+		if(!($this->request->data) && !($this->Session->check('category_options'))){
+			//カテゴリーとリクエストデータがなければトップページにリダイレクト
 			$this->redirect('make_top');
 		}
 		if($this->request->data){
+			//リクエストデータがあった場合の条件文
 	        $default_data = $this->request->data['problem_data'];
-			$this->Session->write('default_data',$default_data);
-			$path = "upload";
-			$image = $this->request->data['problem_data']['image'];
-			move_uploaded_file($image['tmp_name'],$path.DS.$image['name']);
-			$this->set('thumbnail',"/".$path."/".$image['name']);
-			$this->Session->write('category_id',$default_data['category_id']);
+			//写真に関するデータの保存
+			$path = "upload/";//ファイル指定
+			$uuid = String::uuid();//ユニークIDを振る
+			$uuid = substr($uuid, 0, 10);
+			$default_data['image']['name'] = $uuid.$default_data['image']['name'];
+			move_uploaded_file($default_data['image']['tmp_name'],$path.DS.$default_data['image']['name']);
+			$this->set('thumbnail','/'.$path.$default_data['image']['name']);
 			$this->set('category_id',$default_data['category_id']);
+			$this->Session->write('category_id',$default_data['category_id']);
+			$this->Session->write('default_data',$default_data);
 		}
-		$category_data=$this->Session->read('category_options');
-		$subcategory_data=$this->Session->read('subcategory_options');
-		$default_data =$this->Session->read('default_data');
-		$category_id=$this->Session->read('category_id');
+		$category_data = $this->Session->read('category_options');
+		$subcategory_data = $this->Session->read('subcategory_options');
+		$default_data = $this->Session->read('default_data');
+		$category_id = $this->Session->read('category_id');
         //カテゴリが入力されていない場合の条件文
         if(!empty($category_data[$category_id])){//カテゴリが空でないとき
             $this->set('category',$category_data[$category_id]);
@@ -84,8 +89,8 @@ class ProblemsController extends AppController{
             $this->render('check_descriptive');
         }
     }
-    function record_problem($type=NULL){
-        if($this->Session->check('default_select') or $this->Session->check('default_descriptive')){
+    function record_problem($type = NULL){
+        if($this->Session->check('default_select') || $this->Session->check('default_descriptive')){
 			if($type==2){
 				$record_data = $this->Session->read('default_descriptive');
 			}else if($type==1 or $type==NULL){
@@ -99,7 +104,7 @@ class ProblemsController extends AppController{
             $tmp = $this->Problem->validation($url);
             if(!empty($tmp)){
                 $this->set('error_log',$tmp);
-                $this->setAction('make_problem',$type);
+                $this->redirect('make_problem',$type);
             }else{
                 if($type==2){
 					$this->set('record_data',$record_data);
@@ -120,7 +125,7 @@ class ProblemsController extends AppController{
                 }
             }
         }else{
-            $this->setAction('make_problem');
+            $this->redirect('make_problem');
         }
     }
 	// ユーザが作問した問題を一覧表示
