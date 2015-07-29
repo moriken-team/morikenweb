@@ -1,7 +1,7 @@
 <?php
 class ProblemsController extends AppController{
 	public $name = 'Problems';
-	public $uses = array('Evaluate','Problem');
+	public $uses = array('Evaluate','Problem','File', 'Utility');
 	public $components = array('Session');
 	public function index(){
 	}
@@ -47,16 +47,29 @@ class ProblemsController extends AppController{
 		if($this->request->data){
 			//リクエストデータがあった場合の条件文
 	        $default_data = $this->request->data['problem_data'];
-			//写真に関するデータの保存
-			$path = "upload/";//ファイル指定
-			$uuid = String::uuid();//ユニークIDを振る
-			$uuid = substr($uuid, 0, 10);
-			$default_data['image']['name'] = $uuid.$default_data['image']['name'];
-			move_uploaded_file($default_data['image']['tmp_name'],$path.DS.$default_data['image']['name']);
-			$this->set('thumbnail','/'.$path.$default_data['image']['name']);
 			$this->set('category_id',$default_data['category_id']);
-			$this->Session->write('category_id',$default_data['category_id']);
+			//写真に関するデータの保存
+			if(!empty($default_data['image']['name'])){
+				$path = "upload/";//ファイル指定
+				$uuid = String::uuid();//ユニークIDを振る
+				$uuid = substr($uuid, 0, 10);
+				$default_data['image']['name'] = $uuid.$default_data['image']['name'];
+				move_uploaded_file($default_data['image']['tmp_name'],$path.DS.$default_data['image']['name']);
+				$this->set('thumbnail','/'.$path.$default_data['image']['name']);
+				$this->Session->write('imagefile',$default_data['image']['name']);
+			}else{
+				$image = $this->Session->read('imagefile');
+				$file = new File(WWW_ROOT.'upload/'.$image);
+    			$file->delete();//ファイル削除
+				$this->Session->delete('imagefile');
+				$default_data['image']['name'] = null;
+			}
 			$this->Session->write('default_data',$default_data);
+			$this->Session->write('category_id',$default_data['category_id']);
+		}else{
+			if(!empty($this->Session->read('imagefile'))){
+				$this->set('thumbnail','/'.'upload/'.$this->Session->read('imagefile'));
+			}
 		}
 		$category_data = $this->Session->read('category_options');
 		$subcategory_data = $this->Session->read('subcategory_options');
@@ -77,7 +90,7 @@ class ProblemsController extends AppController{
             $this->set('subcategory',"");
         }
         //問題作成確認にapiにて成功のときのレスポンスデータを送っている
-        if("1"== $default_data['type']){
+        if("1" == $default_data['type']){
 			//セッション書き込み
 	        $this->Session->write('default_select',$default_data);
 	        $this->set('default_data',$default_data);
@@ -91,22 +104,26 @@ class ProblemsController extends AppController{
     }
     function record_problem($type = NULL){
         if($this->Session->check('default_select') || $this->Session->check('default_descriptive')){
-			if($type==2){
+			if($type == 2){
 				$record_data = $this->Session->read('default_descriptive');
-			}else if($type==1 or $type==NULL){
+			}else if($type == 1 || $type == NULL){
 				$record_data = $this->Session->read('default_select');
 			}
             $category_data = $this->Session->read('category_options');
             $subcategory_data = $this->Session->read('subcategory_options');
             $category_id = $record_data['category_id'];
-			$record_data['image']="/upload/".$record_data['image']['name'];
+			if(!empty($this->Session->read('imagefile'))){
+				$record_data['image'] = "/upload/".$record_data['image']['name'];
+			}else{
+				$record_data['image'] = null;
+			}
             $url = $this->api_rest("POST","problems/add.json","",$record_data);
             $tmp = $this->Problem->validation($url);
             if(!empty($tmp)){
                 $this->set('error_log',$tmp);
                 $this->redirect('make_problem',$type);
             }else{
-                if($type==2){
+                if($type == 2){
 					$this->set('record_data',$record_data);
                     $this->set('category',$category_data[$category_id]);
                     $this->render('record_descriptive');
