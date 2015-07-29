@@ -20,7 +20,7 @@
  */
 
 App::uses('Controller', 'Controller');
-
+App::uses('Core', 'String');
 /**
  * Application Controller
  *
