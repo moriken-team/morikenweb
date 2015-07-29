@@ -4,6 +4,7 @@ class ProblemsController extends AppController{
 	public $uses = array('Evaluate','Problem','File', 'Utility');
 	public $components = array('Session');
 	public function index(){
+
 	}
 	function make_top(){
 		$this->Session->delete('default_select');
@@ -11,42 +12,42 @@ class ProblemsController extends AppController{
 		$this->Session->delete('category_options');
 		$this->Session->delete('subcategory_options');
 	}
-    function make_problem($type = null){//初期は選択式作問入力
-        $this->set('kentei_id','1');
-        //Webの場合は１を代入する
-        $category_api_pram = 'kentei_id=1';
-        //api_rest($method, $uri, $query = null, $data = null)
-        //カテゴリーAPIを使用,dataに送るのは空の配列
-        $categories = $this->api_rest("GET","categories/index.json",$category_api_pram,array());
-        //カテゴリをわかりやすくするためにモデルで処理、セッション管理
-        $this->Session->write('category_options',$this->Problem->category_sort($categories));
-        $this->Session->write('subcategory_options',$this->Problem->subcategory_sort($categories));
-        $this->set('category_options',$this->Session->read('category_options'));
-        $this->set('subcategory_options',$this->Session->read('subcategory_options'));
-        //typeを追加する。１は選択式問題。初期は選択式問題
-        $this->set('type',$this->Session->read('type'));
-        //typeを追加する。１は選択式問題。初期は選択式問題
-        if($type == 1 || $type == null){
+	function make_problem($type = null){//初期は選択式作問入力
+		$this->set('kentei_id','1');
+		//Webの場合は１を代入する
+		$category_api_pram = 'kentei_id=1';
+		//api_rest($method, $uri, $query = null, $data = null)
+		//カテゴリーAPIを使用,dataに送るのは空の配列
+		$categories = $this->api_rest("GET","categories/index.json",$category_api_pram,array());
+		//カテゴリをわかりやすくするためにモデルで処理、セッション管理
+		$this->Session->write('category_options',$this->Problem->category_sort($categories));
+		$this->Session->write('subcategory_options',$this->Problem->subcategory_sort($categories));
+		$this->set('category_options',$this->Session->read('category_options'));
+		$this->set('subcategory_options',$this->Session->read('subcategory_options'));
+		//typeを追加する。１は選択式問題。初期は選択式問題
+		$this->set('type',$this->Session->read('type'));
+		//typeを追加する。１は選択式問題。初期は選択式問題
+		if($type == 1 || $type == null){
 			$this->set('default',$this->Session->read('default_select'));
-            $this->Session->write('type','1');
-            $this->set('type','1');
-            $this->render('select_problem');
-        }else{
+			$this->Session->write('type','1');
+			$this->set('type','1');
+			$this->render('select_problem');
+		}else{
 			$this->set('default',$this->Session->read('default_descriptive'));
-            $this->Session->write('type',$type);
-            $this->set('type',$type);
-            $this->render('descriptive_problem');
-        }
-    }
-    function check_problem(){
-        //問題の確認用ページ
+			$this->Session->write('type',$type);
+			$this->set('type',$type);
+			$this->render('descriptive_problem');
+		}
+	}
+	function check_problem(){
+		//問題の確認用ページ
 		if(!($this->request->data) && !($this->Session->check('category_options'))){
 			//カテゴリーとリクエストデータがなければトップページにリダイレクト
 			$this->redirect('make_top');
 		}
 		if($this->request->data){
 			//リクエストデータがあった場合の条件文
-	        $default_data = $this->request->data['problem_data'];
+			$default_data = $this->request->data['problem_data'];
 			$this->set('category_id',$default_data['category_id']);
 			//写真に関するデータの保存
 			if(!empty($default_data['image']['name'])){
@@ -60,7 +61,7 @@ class ProblemsController extends AppController{
 			}else{
 				$image = $this->Session->read('imagefile');
 				$file = new File(WWW_ROOT.'upload/'.$image);
-    			$file->delete();//ファイル削除
+				$file->delete();//ファイル削除
 				$this->Session->delete('imagefile');
 				$default_data['image']['name'] = null;
 			}
@@ -75,76 +76,75 @@ class ProblemsController extends AppController{
 		$subcategory_data = $this->Session->read('subcategory_options');
 		$default_data = $this->Session->read('default_data');
 		$category_id = $this->Session->read('category_id');
-        //カテゴリが入力されていない場合の条件文
-        if(!empty($category_data[$category_id])){//カテゴリが空でないとき
-            $this->set('category',$category_data[$category_id]);
-            if(!empty($default_data['subcategory_id'])){//サブカテゴリが空でないとき
-                //debug($subcategory_data[$category_id]);
-                $this->set('subcategory_id',$default_data['subcategory_id']);
-                $this->set('subcategory',$subcategory_data[$category_id][$default_data['subcategory_id']]);
-            }else{
-                $this->set('subcategory',"");
-            }
-        }else{
-            $this->set('category',"");
-            $this->set('subcategory',"");
-        }
-        //問題作成確認にapiにて成功のときのレスポンスデータを送っている
-        if("1" == $default_data['type']){
+		//カテゴリが入力されていない場合の条件文
+		if(!empty($category_data[$category_id])){//カテゴリが空でないとき
+			$this->set('category',$category_data[$category_id]);
+			if(!empty($default_data['subcategory_id'])){//サブカテゴリが空でないとき
+				$this->set('subcategory_id',$default_data['subcategory_id']);
+				$this->set('subcategory',$subcategory_data[$category_id][$default_data['subcategory_id']]);
+			}else{
+				$this->set('subcategory',"");
+			}
+		}else{
+			$this->set('category',"");
+			$this->set('subcategory',"");
+		}
+		//問題作成確認にapiにて成功のときのレスポンスデータを送っている
+		if("1" == $default_data['type']){
 			//セッション書き込み
-	        $this->Session->write('default_select',$default_data);
-	        $this->set('default_data',$default_data);
-            $this->render('check_select');
-        }else{
+			$this->Session->write('default_select',$default_data);
+			$this->set('default_data',$default_data);
+			$this->render('check_select');
+		}else{
 			//セッション書き込み
-	        $this->Session->write('default_descriptive',$default_data);
-	        $this->set('default_data',$default_data);
-            $this->render('check_descriptive');
-        }
-    }
-    function record_problem($type = NULL){
-        if($this->Session->check('default_select') || $this->Session->check('default_descriptive')){
+			$this->Session->write('default_descriptive',$default_data);
+			$this->set('default_data',$default_data);
+			$this->render('check_descriptive');
+		}
+	}
+	function record_problem($type = NULL){
+		if($this->Session->check('default_select') || $this->Session->check('default_descriptive')){
 			if($type == 2){
 				$record_data = $this->Session->read('default_descriptive');
 			}else if($type == 1 || $type == NULL){
 				$record_data = $this->Session->read('default_select');
 			}
-            $category_data = $this->Session->read('category_options');
-            $subcategory_data = $this->Session->read('subcategory_options');
-            $category_id = $record_data['category_id'];
+			$category_data = $this->Session->read('category_options');
+			$subcategory_data = $this->Session->read('subcategory_options');
+			$category_id = $record_data['category_id'];
 			if(!empty($this->Session->read('imagefile'))){
 				$record_data['image'] = "/upload/".$record_data['image']['name'];
 			}else{
 				$record_data['image'] = null;
 			}
-            $url = $this->api_rest("POST","problems/add.json","",$record_data);
-            $tmp = $this->Problem->validation($url);
-            if(!empty($tmp)){
-                $this->set('error_log',$tmp);
-                $this->redirect('make_problem',$type);
-            }else{
-                if($type == 2){
+			$url = $this->api_rest("POST","problems/add.json","",$record_data);
+			$tmp = $this->Problem->validation($url);
+			if(!empty($tmp)){
+				$this->set('error_log',$tmp);
+				$this->redirect('make_problem',$type);
+			}else{
+				if($type == 2){
 					$this->set('record_data',$record_data);
-                    $this->set('category',$category_data[$category_id]);
-                    $this->render('record_descriptive');
-                    $this->Session->delete('default_descriptive');
+					$this->set('category',$category_data[$category_id]);
+					$this->render('record_descriptive');
+					$this->Session->delete('default_descriptive');
 					$this->Session->delete('category_options');
 					$this->Session->delete('subcategory_options');
-                    //セッションの破棄
-                }else{
-		            $this->set('record_data',$record_data);
-                    $this->set('category',$category_data[$category_id]);
-                    $this->render('record_select');
-                    $this->Session->delete('default_select');
+					//セッションの破棄
+				}else{
+					$this->set('record_data',$record_data);
+					$this->set('category',$category_data[$category_id]);
+					$this->render('record_select');
+					$this->Session->delete('default_select');
 					$this->Session->delete('category_options');
 					$this->Session->delete('subcategory_options');
-                    //セッションの破棄
-                }
-            }
-        }else{
-            $this->redirect('make_problem');
-        }
-    }
+					//セッションの破棄
+				}
+			}
+		}else{
+			$this->redirect('make_problem');
+		}
+	}
 	// ユーザが作問した問題を一覧表示
 	public function show_evaluation_problem(){
 		$this->Session->destroy();
