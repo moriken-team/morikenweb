@@ -305,24 +305,24 @@ class ProblemsController extends AppController{
         $get_problems = $this->Session->read('get_problems');
         $problem = $this->Session->read('problem');
         //提示する選択肢を決定するための乱数を生成し代入
-        $random = mt_rand(0, 3);
+        $random = mt_rand(0, 5);
         //過去問の問題文を問題情報を扱うセッションに代入
         $problem[$show_count]['sentence'] = $get_problems['response']['Problems'][$show_count - 1]['Problem']['sentence'];
         //過去問の正しい選択肢を問題情報を扱うセッションに代入
         $problem[$show_count]['right_answer'] = $get_problems['response']['Problems'][$show_count - 1]['Problem']['right_answer'];
-        if($random == 0){
+        if($random < 3){
             //過去問の正しい選択肢を問題情報を扱うセッションに代入
             $problem[$show_count]['showed_answer'] = $get_problems['response']['Problems'][$show_count - 1]['Problem']['right_answer'];
         }
-        if($random == 1){
+        if($random == 3){
             //過去問の誤答選択肢１を問題情報を扱うセッションに代入
             $problem[$show_count]['showed_answer'] = $get_problems['response']['Problems'][$show_count - 1]['Problem']['wrong_answer1'];
         }
-        if($random == 2){
+        if($random  == 4){
             //過去問の誤答選択肢２を問題情報を扱うセッションに代入
             $problem[$show_count]['showed_answer'] = $get_problems['response']['Problems'][$show_count - 1]['Problem']['wrong_answer2'];
         }
-        if($random == 3){
+        if($random == 5){
             //過去問の誤答選択肢３を問題情報を扱うセッションに代入
             $problem[$show_count]['showed_answer'] = $get_problems['response']['Problems'][$show_count - 1]['Problem']['wrong_answer3'];
         }
@@ -346,24 +346,24 @@ class ProblemsController extends AppController{
 
         //正解の時
         //正解の選択肢が提示されていて回答者が◯を選択した場合
-        if($random == 0 && $problem[$show_count]['user_answer'] == '◯'){
+        if($random < 3 && $problem[$show_count]['user_answer'] == '◯'){
             //正解数に１追加
             $score++;
             $this->Session->write('score', $score);
             //１を代入
             $problem[$show_count]['answer_flag'] = 1;
         }
-        if($random != 0 && $problem[$show_count]['user_answer'] == '×'){
+        if($random >= 3 && $problem[$show_count]['user_answer'] == '×'){
             $score++;
             $this->Session->write('score', $score);
             $problem[$show_count]['answer_flag'] = 1;
         }
         //不正解の時
-        if($random != 0 && $problem[$show_count]['user_answer'] == '◯'){
+        if($random >= 3 && $problem[$show_count]['user_answer'] == '◯'){
             //0を代入
             $problem[$show_count]['answer_flag'] = 0;
         }
-        if($random == 0 && $problem[$show_count]['user_answer'] == '×'){
+        if($random < 3 && $problem[$show_count]['user_answer'] == '×'){
             //0を代入
             $problem[$show_count]['answer_flag'] = 0;
         }
