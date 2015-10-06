@@ -277,7 +277,7 @@ class ProblemsController extends AppController{
 //◯×問題のトップページ
     public function top_true_false(){}
 
-//APIを使っての過去問取得関数
+//APIを使っての過去問取得
     public function get_problems_true_false(){
         $this->Session->delete('score');
         $this->Session->delete('show_count');
@@ -327,6 +327,7 @@ class ProblemsController extends AppController{
             $problem[$show_count]['showed_answer'] = $get_problems['response']['Problems'][$show_count - 1]['Problem']['wrong_answer3'];
         }
 
+        $this->Session->write('random', $random);
         $this->Session->write('problem', $problem);
 
         $this->set('problem', $problem);
@@ -339,10 +340,9 @@ class ProblemsController extends AppController{
         $show_count = $this->Session->read('show_count');
         $score = $this->Session->read('score');
         $problem = $this->Session->read('problem');
+        $random = $this->Session->read('random');
 
         $problem[$show_count]['user_answer'] = $this->request->data['answer']['user_answer'];
-        $random = $this->request->data['answer']['random'];
-
         //正解の時
         //正解の選択肢が提示されていて回答者が◯を選択した場合
         if($random == 0 && $problem[$show_count]['user_answer'] == '◯'){
@@ -366,6 +366,8 @@ class ProblemsController extends AppController{
         //ページを読み込んだ回数に１加える
         $show_count++;
         $this->Session->write('show_count', $show_count);
+
+        $this->Session->delete('random');
         //ページを読み込んだ回数が10回を超えた場合
         if($show_count > 10 ){
             //◯×問題の結果表示ページへのリダイレクト
