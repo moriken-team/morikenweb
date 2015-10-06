@@ -277,7 +277,7 @@ class ProblemsController extends AppController{
 //◯×問題のトップページ
     public function top_true_false(){}
 
-//APIを使っての過去問取得
+//APIを使っての過去問取得関数
     public function get_problems_true_false(){
         $this->Session->delete('score');
         $this->Session->delete('show_count');
@@ -327,8 +327,8 @@ class ProblemsController extends AppController{
             $problem[$show_count]['showed_answer'] = $get_problems['response']['Problems'][$show_count - 1]['Problem']['wrong_answer3'];
         }
 
-        $this->Session->write('random', $random);
         $this->Session->write('problem', $problem);
+        $this->Session->write('random', $random);
 
         $this->set('problem', $problem);
         $this->set('random', $random);
@@ -343,6 +343,7 @@ class ProblemsController extends AppController{
         $random = $this->Session->read('random');
 
         $problem[$show_count]['user_answer'] = $this->request->data['answer']['user_answer'];
+
         //正解の時
         //正解の選択肢が提示されていて回答者が◯を選択した場合
         if($random == 0 && $problem[$show_count]['user_answer'] == '◯'){
@@ -351,14 +352,18 @@ class ProblemsController extends AppController{
             $this->Session->write('score', $score);
             //１を代入
             $problem[$show_count]['answer_flag'] = 1;
-            //誤答選択肢が提示されていて回答者が×を選択した場合
-            if($random != 0 && $problem[$show_count]['user_answer'] == '×'){
-                $score++;
-                $this->Session->write('score', $score);
-                $problem[$show_count]['answer_flag'] = 1;
-            }
+        }
+        if($random != 0 && $problem[$show_count]['user_answer'] == '×'){
+            $score++;
+            $this->Session->write('score', $score);
+            $problem[$show_count]['answer_flag'] = 1;
+        }
         //不正解の時
-        }else{
+        if($random != 0 && $problem[$show_count]['user_answer'] == '◯'){
+            //0を代入
+            $problem[$show_count]['answer_flag'] = 0;
+        }
+        if($random == 0 && $problem[$show_count]['user_answer'] == '×'){
             //0を代入
             $problem[$show_count]['answer_flag'] = 0;
         }
@@ -366,8 +371,6 @@ class ProblemsController extends AppController{
         //ページを読み込んだ回数に１加える
         $show_count++;
         $this->Session->write('show_count', $show_count);
-
-        $this->Session->delete('random');
         //ページを読み込んだ回数が10回を超えた場合
         if($show_count > 10 ){
             //◯×問題の結果表示ページへのリダイレクト
@@ -387,6 +390,7 @@ class ProblemsController extends AppController{
         $this->set('show_count', $show_count);
         $this->set('problem', $problem);
 
+        $this->Session->delete('random');
         $this->Session->delete('score');
         $this->Session->delete('show_count');
         $this->Session->delete('problem');
