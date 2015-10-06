@@ -335,8 +335,8 @@ class ProblemsController extends AppController{
         $this->set('show_count', $show_count);
     }
 
-//◯×問題の回答チェックページ
-    public function check_answer_true_false(){
+//回答者が「◯」と回答した場合の正誤判断メソッド    
+    public function check_answer_true(){
         $show_count = $this->Session->read('show_count');
         $score = $this->Session->read('score');
         $problem = $this->Session->read('problem');
@@ -344,31 +344,50 @@ class ProblemsController extends AppController{
 
         $problem[$show_count]['user_answer'] = $this->request->data['answer']['user_answer'];
 
-        //正解の時
-        //正解の選択肢が提示されていて回答者が◯を選択した場合
-        if($random < 3 && $problem[$show_count]['user_answer'] == '◯'){
-            //正解数に１追加
+        //正しい選択肢が提示されている場合
+        if($random < 3){
             $score++;
             $this->Session->write('score', $score);
-            //１を代入
             $problem[$show_count]['answer_flag'] = 1;
         }
+        //誤った選択肢が表示されている場合
+        if($random >= 3){
+            $problem[$show_count]['answer_flag'] = 0;
+        }
+
+        $this->Session->write('problem', $problem);
+        $show_count++;
+        $this->Session->write('show_count', $show_count);
+        //ページを読み込んだ回数が10回を超えた場合
+        if($show_count > 10 ){
+            //◯×問題の結果表示ページへのリダイレクト
+            $this->redirect(array('action' => 'show_result_true_false'));
+        }
+        //問題回答ページへのリダイレクト
+        $this->redirect(array('action' => 'answer_true_false'));
+    }
+
+//回答者が「×」と回答した場合の正誤判断メソッド
+    public function check_answer_false(){
+        $show_count = $this->Session->read('show_count');
+        $score = $this->Session->read('score');
+        $problem = $this->Session->read('problem');
+        $random = $this->Session->read('random');
+
+        $problem[$show_count]['user_answer'] = $this->request->data['answer']['user_answer'];
+
+        //誤った選択肢が表示されている場合
         if($random >= 3 && $problem[$show_count]['user_answer'] == '×'){
             $score++;
             $this->Session->write('score', $score);
             $problem[$show_count]['answer_flag'] = 1;
         }
-        //不正解の時
-        if($random >= 3 && $problem[$show_count]['user_answer'] == '◯'){
-            //0を代入
+        //正しい選択肢が表示されている場合
+        if($random < 3){
             $problem[$show_count]['answer_flag'] = 0;
         }
-        if($random < 3 && $problem[$show_count]['user_answer'] == '×'){
-            //0を代入
-            $problem[$show_count]['answer_flag'] = 0;
-        }
+        
         $this->Session->write('problem', $problem);
-        //ページを読み込んだ回数に１加える
         $show_count++;
         $this->Session->write('show_count', $show_count);
         //ページを読み込んだ回数が10回を超えた場合

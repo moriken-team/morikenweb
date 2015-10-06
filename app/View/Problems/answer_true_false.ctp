@@ -9,12 +9,12 @@ echo 'この問題の答えは['.$problem[$show_count]['showed_answer'].']であ
 
 //提示された選択肢が正しい場合は◯を、間違っている場合は×を選択
 //◯ボタン
-echo $this->Form->create('answer', array('url' => 'check_answer_true_false'));
+echo $this->Form->create('answer', array('url' => 'check_answer_true'));
 echo $this->Form->hidden('user_answer', array('value' => '◯'));
 echo $this->Form->end('◯');
 
 //×ボタン
-echo $this->Form->create('answer', array('url' => 'check_answer_true_false'));
+echo $this->Form->create('answer', array('url' => 'check_answer_false'));
 echo $this->Form->hidden('user_answer', array('value' => '×'));
 echo $this->Form->end('×').$this->Html->tag('br').$this->Html->tag('br');
 ?>
