@@ -377,7 +377,7 @@ class ProblemsController extends AppController{
         $problem[$show_count]['user_answer'] = $this->request->data['answer']['user_answer'];
 
         //誤った選択肢が表示されている場合
-        if($random >= 3 && $problem[$show_count]['user_answer'] == '×'){
+        if($random >= 3){
             $score++;
             $this->Session->write('score', $score);
             $problem[$show_count]['answer_flag'] = 1;
@@ -386,7 +386,7 @@ class ProblemsController extends AppController{
         if($random < 3){
             $problem[$show_count]['answer_flag'] = 0;
         }
-        
+
         $this->Session->write('problem', $problem);
         $show_count++;
         $this->Session->write('show_count', $show_count);
