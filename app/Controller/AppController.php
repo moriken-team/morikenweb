@@ -31,7 +31,20 @@ App::uses('Controller', 'Controller');
  * @link		http://book.cakephp.org/2.0/en/controllers.html#the-app-controller
  */
 class AppController extends Controller {
-    public $components = array('DebugKit.Toolbar','Session');
+    public $components = array(
+        'DebugKit.Toolbar',
+        'Session',
+        'Auth' => array(
+            // ログインページのパス
+            'loginAction' => array('controller' => 'users', 'action' => 'login'),
+            // ログイン後のページを指定
+            'loginRedirect' => array('controller' => 'users', 'action' => 'index'),
+            // ログアウト後の移動先
+            'logoutRedirect' => array('controller' => 'users', 'action' => 'login'),
+            // 未ログイン時のメッセージ
+            'authError' => 'あなたのお名前とパスワードを入力して下さい。',
+        )
+    );
     public $helpers = array(
       'Session',
 //      'Html' => array('className' => 'TwitterBootstrap.BootstrapHtml'),
