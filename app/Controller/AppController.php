@@ -43,6 +43,14 @@ class AppController extends Controller {
             'logoutRedirect' => array('controller' => 'users', 'action' => 'login'),
             // 未ログイン時のメッセージ
             'authError' => 'あなたのお名前とパスワードを入力して下さい。',
+            'authenticate' => array(
+				'Form' => array(
+					'userModel' => 'User',
+					'fields' => array(
+                        'username' => 'email',
+                        'password' => 'password')
+				)
+			),
         )
     );
     public $helpers = array(
