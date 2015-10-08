@@ -136,8 +136,6 @@ class UsersController extends AppController {
 		$this->redirect(array('action' => 'index'));
 	}
 	public function login() {
-		// titleタグ
-		$this->set('title_for_layout','ログイン');
 		if ( $this->request->is('post') ) {
 			if ($this->Auth->login()){
 				$this->redirect($this->Auth->redirect());
