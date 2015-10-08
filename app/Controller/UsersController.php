@@ -22,16 +22,6 @@ class UsersController extends AppController {
  *
  * @return boolean
  */
-    public function login(){
-        if ($this->request->is('post')){
-            $res = $this->api_rest('POST', 'logins.json', "", $this->request->data);
-            if ($res){
-                // login
-            }else{
-                // login error
-            }
-        }
-    }
 
 /**
  * view method
