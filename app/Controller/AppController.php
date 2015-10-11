@@ -48,7 +48,8 @@ class AppController extends Controller {
 					'userModel' => 'User',
 					'fields' => array(
                         'username' => 'email',
-                        'password' => 'password')
+                        'password' => 'password'
+                    )
 				)
 			),
         )
