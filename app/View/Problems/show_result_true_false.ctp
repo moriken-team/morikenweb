@@ -17,3 +17,5 @@ for($i = 1; $i <= 10; $i++){
 		echo $this->Html->tag('br');
 	}
 }
+echo $this->Form->create('form', array('url' => 'top_true_false'));
+echo $this->Form->end('◯×問題のトップに戻る');
