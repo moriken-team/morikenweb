@@ -275,28 +275,31 @@ class ProblemsController extends AppController{
 
 
 //◯×問題のトップページ
-    public function top_true_false(){}
-
-//APIを使っての過去問取得関数
-    public function get_problems_true_false(){
+    public function top_true_false(){
+        //スタートボタンが押された場合の処理
+        if(!empty($this->request->data['answer'])){
         $this->Session->delete('score');
         $this->Session->delete('show_count');
         $this->Session->delete('problem');
         $this->Session->delete('get_problems');
+        //回答チェックページの読み込み回数
+        $this->Session->write('show_count', 1);
+        //過去問取得関数を呼び出し、セッションにデータを格納
+        $this->Session->write('get_problems', $this->get_problems_true_false());
+        //結果表示の際に必要な問題情報を格納するためのセッション
+        $this->Session->write('problem', null);
+        $this->redirect(array('action' => 'answer_true_false'));
+        }
+    }
+
+//APIを使っての過去問取得関数
+    public function get_problems_true_false(){
         //公開されている過去問10問をAPIを使って取得
         $api_url = 'problems/index.json';
         $api_pram = 'kentei_id=1&item=10&public_flag=1';
         $get_problems = $this->api_rest('GET', $api_url, $api_pram, array());
-        //◯×問題の正解数
-        $this->Session->write('score', 0);
-        //回答チェックページの読み込み回数
-        $this->Session->write('show_count', 1);
-        //取得した過去問をセッションに代入
-        $this->Session->write('get_problems', $get_problems);
-        //結果表示の際に必要な問題情報を格納するためのセッション
-        $this->Session->write('problem', null);
-        //問題回答ページへのリダイレクト
-        $this->redirect(array('action' => 'answer_true_false'));
+
+        return $get_problems;
     }
 
 //◯×問題の問題回答ページ
@@ -304,6 +307,7 @@ class ProblemsController extends AppController{
         $show_count = $this->Session->read('show_count');
         $get_problems = $this->Session->read('get_problems');
         $problem = $this->Session->read('problem');
+
         //提示する選択肢を決定するための乱数を生成し代入
         $random = mt_rand(0, 5);
         //過去問の問題文を問題情報を扱うセッションに代入
