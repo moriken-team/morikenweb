@@ -312,30 +312,35 @@ class ProblemsController extends AppController{
         $random = mt_rand(0, 5);
         //過去問の問題文を問題情報を扱うセッションに代入
         $problem[$show_count]['sentence'] = $get_problems['response']['Problems'][$show_count - 1]['Problem']['sentence'];
+        $sentence_length = mb_strlen($problem[$show_count]['sentence']);
         //過去問の正しい選択肢を問題情報を扱うセッションに代入
         $problem[$show_count]['right_answer'] = $get_problems['response']['Problems'][$show_count - 1]['Problem']['right_answer'];
-        if($random < 3){
-            //過去問の正しい選択肢を問題情報を扱うセッションに代入
-            $problem[$show_count]['showed_answer'] = $get_problems['response']['Problems'][$show_count - 1]['Problem']['right_answer'];
+        
+        switch($random){
+            case 0:
+            case 1:
+            case 2:
+                //過去問の正しい選択肢を問題情報を扱うセッションに代入
+                $problem[$show_count]['showed_answer'] = $get_problems['response']['Problems'][$show_count - 1]['Problem']['right_answer'];
+                break;
+            case 3:
+                $problem[$show_count]['showed_answer'] = $get_problems['response']['Problems'][$show_count - 1]['Problem']['wrong_answer1'];
+                break;
+            case 4:
+                $problem[$show_count]['showed_answer'] = $get_problems['response']['Problems'][$show_count - 1]['Problem']['wrong_answer2'];
+                break;
+            case 5:
+                $problem[$show_count]['showed_answer'] = $get_problems['response']['Problems'][$show_count - 1]['Problem']['wrong_answer3'];
+                break;
         }
-        if($random == 3){
-            //過去問の誤答選択肢１を問題情報を扱うセッションに代入
-            $problem[$show_count]['showed_answer'] = $get_problems['response']['Problems'][$show_count - 1]['Problem']['wrong_answer1'];
-        }
-        if($random  == 4){
-            //過去問の誤答選択肢２を問題情報を扱うセッションに代入
-            $problem[$show_count]['showed_answer'] = $get_problems['response']['Problems'][$show_count - 1]['Problem']['wrong_answer2'];
-        }
-        if($random == 5){
-            //過去問の誤答選択肢３を問題情報を扱うセッションに代入
-            $problem[$show_count]['showed_answer'] = $get_problems['response']['Problems'][$show_count - 1]['Problem']['wrong_answer3'];
-        }
+        
+        debug($sentence_length);
+        debug($random);
 
         $this->Session->write('problem', $problem);
         $this->Session->write('random', $random);
 
         $this->set('problem', $problem);
-        $this->set('random', $random);
         $this->set('show_count', $show_count);
     }
 
