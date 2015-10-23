@@ -37,10 +37,6 @@ class AppController extends Controller {
         'Auth' => array(
             // ログインページのパス
             'loginAction' => array('controller' => 'users', 'action' => 'login'),
-            // ログイン後のページを指定
-            'loginRedirect' => array('controller' => 'users', 'action' => 'index'),
-            // ログアウト後の移動先
-            'logoutRedirect' => array('controller' => 'users', 'action' => 'login'),
             // 未ログイン時のメッセージ
             'authError' => 'あなたのお名前とパスワードを入力して下さい。',
             'authenticate' => array(
@@ -85,5 +81,9 @@ class AppController extends Controller {
         $response = json_decode(curl_exec($ch), true); // 第2引数をtrueにすると連想配列で返ってくる
         curl_close($ch);
         return $response;
+    }
+
+    public function beforFilter(){
+        $this->Auth->autoRedirect = false;
     }
 }
