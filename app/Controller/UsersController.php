@@ -138,7 +138,9 @@ class UsersController extends AppController {
 	public function login() {
 		if ( $this->request->is('post') ) {
 			if ($this->Auth->login()){
-				$this->redirect($this->Auth->redirect());
+				$this->redirect(
+					array('controller' => 'users', 'action' => 'index')
+				);
 			} else {
 				$this->Session->setFlash(__('ユーザ名、パスワードが不正です。'));
 			}
