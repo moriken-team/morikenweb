@@ -22,16 +22,6 @@ class UsersController extends AppController {
  *
  * @return boolean
  */
-    public function login(){
-        if ($this->request->is('post')){
-            $res = $this->api_rest('POST', 'logins.json', "", $this->request->data);
-            if ($res){
-                // login
-            }else{
-                // login error
-            }
-        }
-    }
 
 /**
  * view method
@@ -58,7 +48,7 @@ class UsersController extends AppController {
 			if ($this->User->save($this->request->data)) {
                 return $this->success(
                     array(
-                        'code' => 201, 
+                        'code' => 201,
                         'message' => 'ユーザ登録に成功しました。',
                         'token' => Security::generateAuthKey()
                     )
@@ -145,5 +135,18 @@ class UsersController extends AppController {
 		);
 		$this->redirect(array('action' => 'index'));
 	}
-
+	public function login() {
+		if ( $this->request->is('post') ) {
+			if ($this->Auth->login()){
+				$this->redirect(
+					array('controller' => 'users', 'action' => 'index')
+				);
+			} else {
+				$this->Session->setFlash(__('ユーザ名、パスワードが不正です。'));
+			}
+		}
+	}
+	public function logout() {
+		$this->redirect($this->Auth->logout());
+	}
 }

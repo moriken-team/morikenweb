@@ -31,7 +31,25 @@ App::uses('Controller', 'Controller');
  * @link		http://book.cakephp.org/2.0/en/controllers.html#the-app-controller
  */
 class AppController extends Controller {
-    public $components = array('DebugKit.Toolbar','Session');
+    public $components = array(
+        'DebugKit.Toolbar',
+        'Session',
+        'Auth' => array(
+            // ログインページのパス
+            'loginAction' => array('controller' => 'users', 'action' => 'login'),
+            // 未ログイン時のメッセージ
+            'authError' => 'あなたのお名前とパスワードを入力して下さい。',
+            'authenticate' => array(
+				'Form' => array(
+					'userModel' => 'User',
+					'fields' => array(
+                        'username' => 'email',
+                        'password' => 'password'
+                    )
+				)
+			),
+        )
+    );
     public $helpers = array(
       'Session',
 //      'Html' => array('className' => 'TwitterBootstrap.BootstrapHtml'),
@@ -63,5 +81,9 @@ class AppController extends Controller {
         $response = json_decode(curl_exec($ch), true); // 第2引数をtrueにすると連想配列で返ってくる
         curl_close($ch);
         return $response;
+    }
+
+    public function beforFilter(){
+        $this->Auth->autoRedirect = false;
     }
 }
