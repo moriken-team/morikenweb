@@ -275,28 +275,31 @@ class ProblemsController extends AppController{
 
 
 //◯×問題のトップページ
-    public function top_true_false(){}
-
-//APIを使っての過去問取得関数
-    public function get_problems_true_false(){
+    public function top_true_false(){
+        //スタートボタンが押された場合の処理
+        if(!empty($this->request->data['answer'])){
         $this->Session->delete('score');
         $this->Session->delete('show_count');
         $this->Session->delete('problem');
         $this->Session->delete('get_problems');
+        //回答チェックページの読み込み回数
+        $this->Session->write('show_count', 1);
+        //過去問取得関数を呼び出し、セッションにデータを格納
+        $this->Session->write('get_problems', $this->get_problems_true_false());
+        //結果表示の際に必要な問題情報を格納するためのセッション
+        $this->Session->write('problem', null);
+        $this->redirect(array('action' => 'answer_true_false'));
+        }
+    }
+
+//APIを使っての過去問取得関数
+    public function get_problems_true_false(){
         //公開されている過去問10問をAPIを使って取得
         $api_url = 'problems/index.json';
         $api_pram = 'kentei_id=1&item=10&public_flag=1';
         $get_problems = $this->api_rest('GET', $api_url, $api_pram, array());
-        //◯×問題の正解数
-        $this->Session->write('score', 0);
-        //回答チェックページの読み込み回数
-        $this->Session->write('show_count', 1);
-        //取得した過去問をセッションに代入
-        $this->Session->write('get_problems', $get_problems);
-        //結果表示の際に必要な問題情報を格納するためのセッション
-        $this->Session->write('problem', null);
-        //問題回答ページへのリダイレクト
-        $this->redirect(array('action' => 'answer_true_false'));
+
+        return $get_problems;
     }
 
 //◯×問題の問題回答ページ
@@ -304,66 +307,96 @@ class ProblemsController extends AppController{
         $show_count = $this->Session->read('show_count');
         $get_problems = $this->Session->read('get_problems');
         $problem = $this->Session->read('problem');
+
         //提示する選択肢を決定するための乱数を生成し代入
-        $random = mt_rand(0, 3);
+        $random = mt_rand(0, 5);
         //過去問の問題文を問題情報を扱うセッションに代入
         $problem[$show_count]['sentence'] = $get_problems['response']['Problems'][$show_count - 1]['Problem']['sentence'];
+        $sentence_length = mb_strlen($problem[$show_count]['sentence']);
         //過去問の正しい選択肢を問題情報を扱うセッションに代入
         $problem[$show_count]['right_answer'] = $get_problems['response']['Problems'][$show_count - 1]['Problem']['right_answer'];
-        if($random == 0){
-            //過去問の正しい選択肢を問題情報を扱うセッションに代入
-            $problem[$show_count]['showed_answer'] = $get_problems['response']['Problems'][$show_count - 1]['Problem']['right_answer'];
+        
+        switch($random){
+            case 0:
+            case 1:
+            case 2:
+                //過去問の正しい選択肢を問題情報を扱うセッションに代入
+                $problem[$show_count]['showed_answer'] = $get_problems['response']['Problems'][$show_count - 1]['Problem']['right_answer'];
+                break;
+            case 3:
+                $problem[$show_count]['showed_answer'] = $get_problems['response']['Problems'][$show_count - 1]['Problem']['wrong_answer1'];
+                break;
+            case 4:
+                $problem[$show_count]['showed_answer'] = $get_problems['response']['Problems'][$show_count - 1]['Problem']['wrong_answer2'];
+                break;
+            case 5:
+                $problem[$show_count]['showed_answer'] = $get_problems['response']['Problems'][$show_count - 1]['Problem']['wrong_answer3'];
+                break;
         }
-        if($random == 1){
-            //過去問の誤答選択肢１を問題情報を扱うセッションに代入
-            $problem[$show_count]['showed_answer'] = $get_problems['response']['Problems'][$show_count - 1]['Problem']['wrong_answer1'];
-        }
-        if($random == 2){
-            //過去問の誤答選択肢２を問題情報を扱うセッションに代入
-            $problem[$show_count]['showed_answer'] = $get_problems['response']['Problems'][$show_count - 1]['Problem']['wrong_answer2'];
-        }
-        if($random == 3){
-            //過去問の誤答選択肢３を問題情報を扱うセッションに代入
-            $problem[$show_count]['showed_answer'] = $get_problems['response']['Problems'][$show_count - 1]['Problem']['wrong_answer3'];
-        }
+        
+        debug($sentence_length);
+        debug($random);
 
         $this->Session->write('problem', $problem);
+        $this->Session->write('random', $random);
 
         $this->set('problem', $problem);
-        $this->set('random', $random);
         $this->set('show_count', $show_count);
     }
 
-//◯×問題の回答チェックページ
-    public function check_answer_true_false(){
+//回答者が「◯」と回答した場合の正誤判断メソッド    
+    public function check_answer_true(){
         $show_count = $this->Session->read('show_count');
         $score = $this->Session->read('score');
         $problem = $this->Session->read('problem');
+        $random = $this->Session->read('random');
 
         $problem[$show_count]['user_answer'] = $this->request->data['answer']['user_answer'];
-        $random = $this->request->data['answer']['random'];
 
-        //正解の時
-        //正解の選択肢が提示されていて回答者が◯を選択した場合
-        if($random == 0 && $problem[$show_count]['user_answer'] == '◯'){
-            //正解数に１追加
+        //正しい選択肢が提示されている場合
+        if($random < 3){
             $score++;
             $this->Session->write('score', $score);
-            //１を代入
             $problem[$show_count]['answer_flag'] = 1;
-            //誤答選択肢が提示されていて回答者が×を選択した場合
-            if($random != 0 && $problem[$show_count]['user_answer'] == '×'){
-                $score++;
-                $this->Session->write('score', $score);
-                $problem[$show_count]['answer_flag'] = 1;
-            }
-        //不正解の時
-        }else{
-            //0を代入
+        }
+        //誤った選択肢が表示されている場合
+        if($random >= 3){
             $problem[$show_count]['answer_flag'] = 0;
         }
+
         $this->Session->write('problem', $problem);
-        //ページを読み込んだ回数に１加える
+        $show_count++;
+        $this->Session->write('show_count', $show_count);
+        //ページを読み込んだ回数が10回を超えた場合
+        if($show_count > 10 ){
+            //◯×問題の結果表示ページへのリダイレクト
+            $this->redirect(array('action' => 'show_result_true_false'));
+        }
+        //問題回答ページへのリダイレクト
+        $this->redirect(array('action' => 'answer_true_false'));
+    }
+
+//回答者が「×」と回答した場合の正誤判断メソッド
+    public function check_answer_false(){
+        $show_count = $this->Session->read('show_count');
+        $score = $this->Session->read('score');
+        $problem = $this->Session->read('problem');
+        $random = $this->Session->read('random');
+
+        $problem[$show_count]['user_answer'] = $this->request->data['answer']['user_answer'];
+
+        //誤った選択肢が表示されている場合
+        if($random >= 3){
+            $score++;
+            $this->Session->write('score', $score);
+            $problem[$show_count]['answer_flag'] = 1;
+        }
+        //正しい選択肢が表示されている場合
+        if($random < 3){
+            $problem[$show_count]['answer_flag'] = 0;
+        }
+
+        $this->Session->write('problem', $problem);
         $show_count++;
         $this->Session->write('show_count', $show_count);
         //ページを読み込んだ回数が10回を超えた場合
@@ -385,6 +418,7 @@ class ProblemsController extends AppController{
         $this->set('show_count', $show_count);
         $this->set('problem', $problem);
 
+        $this->Session->delete('random');
         $this->Session->delete('score');
         $this->Session->delete('show_count');
         $this->Session->delete('problem');
