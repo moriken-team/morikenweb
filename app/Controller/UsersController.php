@@ -1,149 +1,198 @@
 <?php
-App::uses('AppController', 'Controller');
 /**
  * Users Controller
  *
  * @property User $User
  * @property PaginatorComponent $Paginator
  */
+
+App::uses('AppController', 'Controller');
+//facebook認証
+App::import('Vendor','facebook',array('file' => 'facebook'.DS.'src'.DS.'facebook.php'));
+App::import('Vendor','twitteroauth/autoload');
+use Abraham\TwitterOAuth\TwitterOAuth;
 class UsersController extends AppController {
-
-/**
- * index method
- *
- * @return void
- */
-	public function index() {
-
-	}
-
-/**
- * login method
- *
- * @return boolean
- */
-    public function login(){
-        if ($this->request->is('post')){
-            $res = $this->api_rest('POST', 'logins.json', "", $this->request->data);
-            if ($res){
-                // login
-            }else{
-                // login error
-            }
-        }
-    }
-
-/**
- * view method
- *
- * @param string $id
- * @return void
- */
-	public function view($id = null) {
-		$this->User->id = $id;
-		if (!$this->User->exists()) {
-			throw new NotFoundException(__('Invalid %s', __('user')));
+	public $name = 'Users'; //クラス名
+	public $components = array('Session');
+	/*
+	*  ログイン後のトップページ
+	*/
+	function index()
+	{
+		if(!empty($this->Session->read('userdata')))
+		{
+			$userdata =$this->Session->read('userdata');
+			//debug($userdata);
+			$this->set('userdata',$userdata);
 		}
-		$this->set('user', $this->User->read(null, $id));
+		else
+		{
+			$this->redirect(array('action' => 'login'));
+		}
+		$this->Session->delete('userdata');
 	}
-
-/**
- * add method
- *
- * @return void
- */
-	public function add() {
-		if ($this->request->is('post')) {
-			$this->User->create();
-			if ($this->User->save($this->request->data)) {
-                return $this->success(
-                    array(
-                        'code' => 201, 
-                        'message' => 'ユーザ登録に成功しました。',
-                        'token' => Security::generateAuthKey()
-                    )
-                );
-            } else {
-                return $this->validationError('User', $this->User->validationErrors);
+	/*
+	*  ログイン機能
+	*/
+	function login(){
+		//debug($this->request->data);
+		if(!empty($this->request->data)){//値がtrue
+			$url = $this->api_rest("POST","logins.json","",$this->request->data);
+			if(empty($this->User->errorcheck($url))){//エラーがないときにindexに
+				$this->Session->write('userdata',$url['response']['data']);
+				//ユーザの情報を持ってくる
+				$this->redirect('index');
+			}else{
+				$this->set('message',$this->User->errorcheck($url));
 			}
 		}
 	}
-
-/**
- * edit method
- *
- * @param string $id
- * @return void
- */
-	public function edit($id = null) {
-		$this->User->id = $id;
-		if (!$this->User->exists()) {
-			throw new NotFoundException(__('Invalid %s', __('user')));
-		}
-		if ($this->request->is('post') || $this->request->is('put')) {
-			if ($this->User->save($this->request->data)) {
-				$this->Session->setFlash(
-					__('The %s has been saved', __('user')),
-					'alert',
-					array(
-						'plugin' => 'TwitterBootstrap',
-						'class' => 'alert-success'
-					)
-				);
-				$this->redirect(array('action' => 'index'));
-			} else {
-				$this->Session->setFlash(
-					__('The %s could not be saved. Please, try again.', __('user')),
-					'alert',
-					array(
-						'plugin' => 'TwitterBootstrap',
-						'class' => 'alert-error'
-					)
-				);
+	/*
+	*  ユーザ登録機能
+	*/
+	function add_user(){
+		if(!empty($this->request->data)){
+			$url = $this->api_rest("POST","users.json","",$this->request->data);
+			if(empty($this->User->validation($url))){
+				$this->redirect(array('action' => 'login'));
+			}else{
+				$this->set('message',$this->User->validation($url));
 			}
-		} else {
-			$this->request->data = $this->User->read(null, $id);
 		}
-		$twitters = $this->User->Twitter->find('list');
-		$facebooks = $this->User->Facebook->find('list');
-		$morikenAuths = $this->User->MorikenAuth->find('list');
-		$this->set(compact('twitters', 'facebooks', 'morikenAuths'));
 	}
-
-/**
- * delete method
- *
- * @param string $id
- * @return void
- */
-	public function delete($id = null) {
-		if (!$this->request->is('post')) {
-			throw new MethodNotAllowedException();
+	public function opauthComplete(){
+		//debug($this->request->data['auth']['uid']);
+		$this->Session->write('twitter',$this->request->data['auth']['uid']);
+		$this->redirect(array('controller'=>'users','action' => 'setting'));
+	}
+	/*
+	public function beforeFilter() {
+		if($this->params['action'] == 'opauthComplete') {
+			$this->Security->csrfCheck = false;
+			$this->Security->validatePost = false;
 		}
-		$this->User->id = $id;
-		if (!$this->User->exists()) {
-			throw new NotFoundException(__('Invalid %s', __('user')));
-		}
-		if ($this->User->delete()) {
-			$this->Session->setFlash(
-				__('The %s deleted', __('user')),
-				'alert',
-				array(
-					'plugin' => 'TwitterBootstrap',
-					'class' => 'alert-success'
-				)
-			);
-			$this->redirect(array('action' => 'index'));
-		}
-		$this->Session->setFlash(
-			__('The %s was not deleted', __('user')),
-			'alert',
-			array(
-				'plugin' => 'TwitterBootstrap',
-				'class' => 'alert-error'
-			)
+	}
+	//
+	*/
+	/*
+	twitterにpostします。
+	*/
+	public function twitter_auth()
+	{
+		$this->autoRender = false;
+		$this->autoLayout = false;
+		$twitter = new TwitterOAuth(
+			parent::$CONSUMER_KEY,parent::$CONSUMER_SECRET
 		);
-		$this->redirect(array('action' => 'index'));
+		$request_token = $twitter->oauth(
+			'oauth/request_token',
+			array('oauth_callback' => 'http://rinnkisi-no-macbook-air.local/morikenweb/users/setting')
+		);
+		$url = $twitter->url('oauth/authorize', array('oauth_token' => $request_token['oauth_token']));
+		$this->Session->write('request_token', $request_token);
+		//debug($ACCESS);
+		// OAuthオブジェクト生成
+		$this->redirect($url);
+	}
+	public function twitter_access($verifier = null)
+	{
+		$ACCESS = $this->Session->read('request_token');
+		$toa = new TwitterOAuth(
+			parent::$CONSUMER_KEY, parent::$CONSUMER_SECRET, $ACCESS['oauth_token'], $ACCESS['oauth_token_secret']
+		);
+		$this->Session->write('verify', $verifier);
+		$access_token = $toa->oauth("oauth/access_token", array("oauth_verifier" => $verifier));
+		// アクセストークンを保存する
+		$this->Session->write('a_token', $access_token);
+		return $access_token['user_id'];
+	}
+	public function twitter_post()
+	{
+		$this->autoRender = false;
+		$this->autoLayout = false;
+		// 投稿する文言
+		$postMsg = $this->request->data['User']['text'];
+		$access_token = $this->Session->read('a_token');
+		//投稿
+		$toa_post = new TwitterOAuth(
+			parent::$CONSUMER_KEY, parent::$CONSUMER_SECRET, $access_token['oauth_token'], $access_token['oauth_token_secret']
+		);
+		$res = $toa_post->OAuthRequest(parent::$TWITTER_API, "POST", array("status" => "$postMsg"));
+		// レスポンス表示
+		//var_dump($res);
+		$this->redirect('setting');
+	}
+	public function setting(){
+		if(!empty($_GET['oauth_token']))
+		{
+			$this->Session->write('twitter_id', self::twitter_access($_GET['oauth_verifier']));
+		}
+		// debug($this->Session->read('request_token'));
+		$this->set('twitter_id', $this->Session->read('twitter_id'));
+		$this->set('facebook_id', $this->Session->read('facebook_id'));
+	}
+	public function sns_auth_delete($id = 0)
+	{
+		if($id == $this->Session->read('twitter_id'))
+		{
+			$this->Session->delete('twitter_id');
+		}
+		else if($id == $this->Session->read('facebook_id'))
+		{
+			$this->Session->delete('facebook_id');
+		}
+		$this->redirect('setting');
+		//$this->Session->delete('userdata');
 	}
 
+	public function showdata(){//トップページ
+		$facebook = $this->createFacebook(); //セッション切れ対策 (?)
+		$myFbData = $this->Session->read('mydata');//facebookのデータ
+		//$myFbData_kana = $this->Session->read('fbdata_kana'); //フリガナ
+		$this->fbpost("hello world");
+		$this->redirect('setting');
+	}
+	public function facebook(){//facebookの認証処理部分
+		$this->autoRender = false;
+		$this->facebook = $this->createFacebook();
+		$user = $this->facebook->getUser();//ユーザ情報取得
+		//認証後
+		if(!empty($user))
+		{
+			$me = $this->facebook->api('/me','GET',array('locale'=>'ja_JP'));//ユーザ情報を日本語で取得
+			$this->Session->write('mydata',$me);//fbデータをセッションに保存
+			$this->Session->write('facebook_id',$me['id']);
+			$this->redirect('showdata');
+		}
+		else//認証前
+		{
+			$url = $this->facebook->getLoginUrl(array(
+				'scope' => 'email',
+				'canvas' => 1,
+				'fbconnect' => 0
+			));
+			//facebookのフラグたて
+			$this->redirect($url);
+		}
+	}
+	//appID, secretを記述, facebookインスタンスの作成
+	private function createFacebook() {
+		return new Facebook(array(
+			'appId' => '643426722484966',
+			'secret' => '1adc65747236d169586f49a38eda716d'
+		));
+	}
+	public function fbpost($postData) {//facebookのwallにpostする処理
+		$facebook = $this->createFacebook();
+		/* テスト用にアクセストークンを変更 */
+		$attachment = array(
+			'access_token' =>CAAJJMXU7kuYBABk7viGjwdTZAoqpJWNIOpaQTF2vrICZAbEIbNUSjyOmJGp7MuXbajN5X0X3JSaEuRXkPt0H4ZCSCnvCQZBn7kinG5BmZCmpFy8V8zyvJiCWf6g4qdOoI13UeMFc246hBmqCi4cKTeuTxZC7jIVWPZCOJezJaeK8PZBryzDF8rfQkGyB21ZAZBm8QDMBfo61pIC1bJyQLRGtvo, //access_token入手
+			//'message' => $postData,
+			'message' => "テストです",
+			'name' => "test",
+			'link' => "http://twitter.com/rinnkisi",
+			'description' => "test",
+		);
+		$facebook->api('/me/feed', 'POST', $attachment);
+	}
 }
