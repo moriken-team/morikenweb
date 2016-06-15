@@ -17,12 +17,16 @@ class UsersController extends AppController {
 	/*
 	*  ログイン後のトップページ
 	*/
-	function index(){
-		if(!empty($this->Session->read('userdata'))){
+	function index()
+	{
+		if(!empty($this->Session->read('userdata')))
+		{
 			$userdata =$this->Session->read('userdata');
 			//debug($userdata);
 			$this->set('userdata',$userdata);
-		}else{
+		}
+		else
+		{
 			$this->redirect(array('action' => 'login'));
 		}
 		$this->Session->delete('userdata');
@@ -183,7 +187,8 @@ class UsersController extends AppController {
 		/* テスト用にアクセストークンを変更 */
 		$attachment = array(
 			'access_token' =>CAAJJMXU7kuYBABk7viGjwdTZAoqpJWNIOpaQTF2vrICZAbEIbNUSjyOmJGp7MuXbajN5X0X3JSaEuRXkPt0H4ZCSCnvCQZBn7kinG5BmZCmpFy8V8zyvJiCWf6g4qdOoI13UeMFc246hBmqCi4cKTeuTxZC7jIVWPZCOJezJaeK8PZBryzDF8rfQkGyB21ZAZBm8QDMBfo61pIC1bJyQLRGtvo, //access_token入手
-			'message' => $postData,
+			//'message' => $postData,
+			'message' => "テストです",
 			'name' => "test",
 			'link' => "http://twitter.com/rinnkisi",
 			'description' => "test",
