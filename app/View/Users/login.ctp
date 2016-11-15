@@ -10,7 +10,6 @@
 <?php echo "<br />"; ?>
 <?php echo $this->Form->button('LOGIN', array(
     'type' => 'submit',
-    'class' => 'btn btn-primary btn-large',
     'escape' => false
 ));
 ?>
