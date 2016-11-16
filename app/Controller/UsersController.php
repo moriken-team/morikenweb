@@ -22,16 +22,16 @@ class UsersController extends AppController {
  *
  * @return boolean
  */
-    public function login(){
-        if ($this->request->is('post')){
-            $res = $this->api_rest('POST', 'logins.json', "", $this->request->data);
-            if ($res){
-                // login
-            }else{
-                // login error
-            }
-        }
-    }
+	public function login() {
+	    if($this->request->is('post')) {
+	        if($this->Auth->login()) {
+	            $this->redirect($this->Auth->redirect());
+	        }else{
+	            $this->Session->setFlash(__('Different ID or PassWord'));
+	        }
+	    }
+	}
+
 
 /**
  * view method
