@@ -32,6 +32,10 @@ class UsersController extends AppController {
 	    }
 	}
 
+	public function logout() {
+	    $this->redirect($this->Auth->logout());
+	}
+
 
 /**
  * view method
@@ -56,15 +60,10 @@ class UsersController extends AppController {
 		if ($this->request->is('post')) {
 			$this->User->create();
 			if ($this->User->save($this->request->data)) {
-                return $this->success(
-                    array(
-                        'code' => 201, 
-                        'message' => 'ユーザ登録に成功しました。',
-                        'token' => Security::generateAuthKey()
-                    )
-                );
+				$this->Session->setFlash(__('saved.'));
+				return $this->redirect(array('action' => 'user'));
             } else {
-                return $this->validationError('User', $this->User->validationErrors);
+				$this->Session->setFlash(__('failed.'));
 			}
 		}
 	}
