@@ -1,7 +1,7 @@
-<?php echo $this->Form->create('User'); ?>
-	<?php
-		echo $this->Form->input('username');
-		echo $this->Form->input('email');
-		echo $this->Form->input('password');
-	?>
-<?php echo $this->Form->end(__('Submit')); ?>
+<?php 
+    echo $this->Form->create('User'); 
+    echo $this->Form->input('username');
+    echo $this->Form->input('email');
+    echo $this->Form->input('password');
+    $this->Form->end(__('Submit'));
+?>
